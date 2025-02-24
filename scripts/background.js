@@ -1,22 +1,13 @@
 const MODEL = "google/gemini-2.0-flash-thinking-exp:free";
 
-function getSuggestedText(inputText) {
-  const testCompletions = {
-    "Hello": [" World", " There!"],
-    "Good": [" Morning!", " Afternoon!", " Evening!"],
-    "Buona": [" Notte!", " Tarde!"],
-    "Boa": [" Noite!", " Tarde!"],
-    "My name": [" is"],
-    "My name is ": ["Avi"],
-    "My name is Avi ": ["Vijh"]
-  };
-  const suggestedText = testCompletions[inputText] || [];
-  //console.log("inputText:", inputText, "suggestedText:", suggestedText);
-  return suggestedText;
-}
-
-async function getSuggestionsFromAIModel(completionContext, incompleteText) {
-  let OPENROUTER_API_KEY = "";
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("Background script (onMessage): fetch_completion message received:", message.data);  
+  
+  if (message.action === "fetch_completion") {
+        
+      let incompleteText = message.data.incompleteText;
+      let completionContext = message.data.completionContext;
+      let OPENROUTER_API_KEY = "";
 
   chrome.storage.local.get(["apiKey"], (result) => {
     OPENROUTER_API_KEY = result.apiKey;
@@ -27,7 +18,7 @@ async function getSuggestionsFromAIModel(completionContext, incompleteText) {
     }
   });
 
-  const response = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+  const response = fetch(`https://openrouter.ai/api/v1/chat/completions`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
@@ -61,35 +52,24 @@ async function getSuggestionsFromAIModel(completionContext, incompleteText) {
                 }
             ]
         })
-    }).then((response) => response.json()); // fetch request to openrouter
+    }).then((response) => response.json())
+    .then((data) => {
+      console.log("Background script (getSuggestionsFromAIModel): response:", data);
+      const responseJSON = data.choices[0].message.content;
+      console.log("Background script (getSuggestionsFromAIModel): response:", response, "responseJSON:", responseJSON);
     
-    const responseJSON = response.choices[0].message.content;
-    console.log("Background script (getSuggestionsFromAIModel): response:", response, "responseJSON:", responseJSON);
-    
-    const cleanedText = responseJSON.replace(/```(?:json)?\n?|```/g, '').trim(); // Remove backticks and optional 'json'
-    console.log("Background script (getSuggestionsFromAIModel): cleanedText:", cleanedText);
-    
-    let suggestedText = [];
-    try {
-      suggestedText = JSON.parse(cleanedText).suggestions;
-    } catch (error) {
-      console.error("Background script (getSuggestionsFromAIModel) - Error parsing JSON:", error);
-    }
-    console.log("Background script (getSuggestionsFromAIModel) - suggestedText:", suggestedText);
-
-    return suggestedText;
-} // getSuggestionsFromAIModel
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Background script (onMessage): fetch_completion message received:", message.data);  
-  if (message.action === "fetch_completion") {
-        
-      let incompleteText = message.data.incompleteText;
-      let completionContext = message.data.completionContext;
-      //suggestedText = getSuggestedText(incompleteText); // Simulated AI response
-      const suggestedText = getSuggestionsFromAIModel(completionContext, incompleteText);
-      console.log("Background script (onMessage) - suggestedText:", suggestedText);
+      const cleanedText = responseJSON.replace(/```(?:json)?\n?|```/g, '').trim(); // Remove backticks and optional 'json'
+      console.log("Background script (getSuggestionsFromAIModel): cleanedText:", cleanedText);
+      
+      let suggestedText = [];
+      try {
+        suggestedText = JSON.parse(cleanedText).suggestions;
+      } catch (error) {
+        console.error("Background script (getSuggestionsFromAIModel) - Error parsing JSON:", error);
+      }
+      console.log("Background script (getSuggestionsFromAIModel) - suggestedText:", suggestedText);
       sendResponse({ suggestions: suggestedText });
+    }); // fetch request to openrouter
 
       return true; // Indicates that the response will be sent asynchronously
     }
