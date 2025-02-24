@@ -1,4 +1,4 @@
-const OPENROUTER_API_KEY = "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";
+const OPENROUTER_API_KEY = "";
 const MODEL = "google/gemma-2-9b-it:free";
 
 // Example: Listening for browser action click (icon click)
