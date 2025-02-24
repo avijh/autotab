@@ -38,16 +38,22 @@ function addEventListeners(elements) {
         console.log("Content script - input event:", event, "event.target:", event.target, "newValue:", newValue, "el.tagName:", el.tagName);
         
         let completionContext = getMetaTags();
-        //console.log("Content script - completionContext:", completionContext);
+        console.log("Content script - completionContext:", completionContext);
 
         // Display the suggested text
         if (newValue !== "") {
-          chrome.runtime.sendMessage({ action: "fetch_completion", data: {context: completionContext, incompleteText: newValue } }, (response) => {
-              //console.log("Content script: fetch_completion message received:", response);
-            if (response && response.suggestion.length > 0) {
-                suggestedText = response.suggestion;
+          chrome.runtime.sendMessage({ action: "fetch_completion", data: {completionContext: completionContext, incompleteText: newValue } }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              return;
+            }
+            console.log("Content script: fetch_completion message received:", response, "response.suggestions:", response.suggestions);
+            if (response && response.suggestions) {
+                suggestedText = response.suggestions;
                 console.log("Content script: suggestedText:", suggestedText);
                 displaySuggestion(event.target, suggestedText[selectedSuggestion], pTaginEditableDiv);
+            } else {
+              console.error("Content script: No suggestions received or an error occurred.");
             }
           });
         }

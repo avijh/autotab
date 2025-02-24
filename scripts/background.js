@@ -1,13 +1,5 @@
-const OPENROUTER_API_KEY = "";
-const MODEL = "google/gemma-2-9b-it:free";
+const MODEL = "google/gemini-2.0-flash-thinking-exp:free";
 
-// Example: Listening for browser action click (icon click)
-chrome.action.onClicked.addListener(tab => {
-  console.log("Background script: Browser action clicked");
-  // You can open a new tab, send messages, etc. here
-});
-
-// Add a function to return the suggested text to be typed
 function getSuggestedText(inputText) {
   const testCompletions = {
     "Hello": [" World", " There!"],
@@ -24,7 +16,18 @@ function getSuggestedText(inputText) {
 }
 
 async function getSuggestionsFromAIModel(completionContext, incompleteText) {
-     const response = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+  let OPENROUTER_API_KEY = "";
+
+  chrome.storage.local.get(["apiKey"], (result) => {
+    OPENROUTER_API_KEY = result.apiKey;
+    if (!OPENROUTER_API_KEY) {
+      console.log("Background script (getSuggestionsFromAIModel) - API key not found.");
+    } else {
+      console.log("Background script (getSuggestionsFromAIModel) - API key:", OPENROUTER_API_KEY);
+    }
+  });
+
+  const response = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
@@ -47,10 +50,9 @@ async function getSuggestionsFromAIModel(completionContext, incompleteText) {
                                 The completion should be grammatically correct.
                                 The completion should be as short as possible, preferably just a single word or phrase.
                                 The completion should be a single word or phrase that is a logical continuation of the incomplete text.
-                                Return the suggestions as a JSON array of strings.
-                                The array should be empty if there are no suggestions.
-                                Do not send back any other text than the JSON array with the suggestions.
-                                Do not include the provided incomplete text as part of the suggestions.                             
+                                Do not send back any other text than the suggestions.
+                                Do not include the provided incomplete text as part of the suggestions.
+                                Return the suggestions as a JSON object with an array of strings.                             
                                 ` 
                 },
                 {
@@ -59,28 +61,37 @@ async function getSuggestionsFromAIModel(completionContext, incompleteText) {
                 }
             ]
         })
-    }); // fetch request to openrouter
-    const responseData = await response.json();
-    const suggestedText = responseData.choices[0].message.content;
-    console.log("Background script: responseData:", responseData, "suggestedText:", suggestedText);
+    }).then((response) => response.json()); // fetch request to openrouter
+    
+    const responseJSON = response.choices[0].message.content;
+    console.log("Background script (getSuggestionsFromAIModel): response:", response, "responseJSON:", responseJSON);
+    
+    const cleanedText = responseJSON.replace(/```(?:json)?\n?|```/g, '').trim(); // Remove backticks and optional 'json'
+    console.log("Background script (getSuggestionsFromAIModel): cleanedText:", cleanedText);
+    
+    let suggestedText = [];
+    try {
+      suggestedText = JSON.parse(cleanedText).suggestions;
+    } catch (error) {
+      console.error("Background script (getSuggestionsFromAIModel) - Error parsing JSON:", error);
+    }
+    console.log("Background script (getSuggestionsFromAIModel) - suggestedText:", suggestedText);
 
     return suggestedText;
-}
+} // getSuggestionsFromAIModel
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Background script: fetch_completion message received:", message.data);  
+  console.log("Background script (onMessage): fetch_completion message received:", message.data);  
   if (message.action === "fetch_completion") {
         
-      // Replace this with actual API call
-        let incompleteText = message.data.incompleteText;
-        let completionContext = message.data.context;
-        let suggestedText = [];
-        //suggestedText = getSuggestedText(userText); // Simulated AI response
-        suggestedText = getSuggestionsFromAIModel(completionContext, incompleteText);
-        console.log("Background script: suggestedText:", suggestedText);
-        sendResponse({ suggestion: suggestedText });
+      let incompleteText = message.data.incompleteText;
+      let completionContext = message.data.completionContext;
+      //suggestedText = getSuggestedText(incompleteText); // Simulated AI response
+      const suggestedText = getSuggestionsFromAIModel(completionContext, incompleteText);
+      console.log("Background script (onMessage) - suggestedText:", suggestedText);
+      sendResponse({ suggestions: suggestedText });
 
-        return true; // Indicates that the response will be sent asynchronously
+      return true; // Indicates that the response will be sent asynchronously
     }
 });
 
