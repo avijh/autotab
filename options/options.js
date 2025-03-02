@@ -10,3 +10,14 @@ document.getElementById('save-api-key').addEventListener('click', () => {
     });
   }
 });
+
+let apiKey = "";
+chrome.storage.local.get(["apiKey"], (result) => {
+    apiKey = result.apiKey;
+    if (!apiKey) {
+      //console.log("Options script - API key not found.");
+    } else {
+      //console.log("Options script - API key found.");
+      document.getElementById('api-key').value = apiKey;
+    }
+  });

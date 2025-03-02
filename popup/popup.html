@@ -2,11 +2,34 @@
 <html>
 <head>
   <title>AutoTab Extension Popup</title>
+  <style>
+    /* Add some basic styling for the header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background-color: #f1f1f1;
+      min-width: 250px; /* Set minimum width */
+    }
+    .header img {
+      height: 32px;
+    }
+    .logo {
+      margin-right: auto; /* Align logo to the left */
+    }
+  </style>
 </head>
 <body>
-  <h1>AutoTab Extension Popup!</h1>
-  <button id="findInteractiveElements">Find Interactive Elements</button>
-  <img id="settings" src="../icons/icons8-settings-32.png">
+  <div class="header">
+    <img class="logo" src="../images/AutoTab-logo.png" alt="AutoTab Logo">
+    <img id="settings" src="../icons/icons8-settings-32.png" alt="Settings">
+  </div>
+  <p>AutoTab uses AI to complete your text. Just choose a suggestion and press Tab.</p>
+  <label>
+    <input type="checkbox" id="toggle-extension" checked>
+    Enable AutoTab
+  </label>
   <script src="popup.js"></script>
 </body>
 </html>

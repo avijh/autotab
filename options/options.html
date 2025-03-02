@@ -2,11 +2,69 @@
 <html>
 <head>
     <title>Options</title>
+    <style>
+        /* Add styling for the header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f1f1f1;
+        }
+        .header img {
+            height: 32px;
+            margin-right: 10px;
+        }
+        /* Add a light blue gradient background to the page */
+        body {
+            background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        /* Style the container for input and button */
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        /* Style the API key input field */
+        #api-key {
+            flex-grow: 1; /* Allow the input to grow */
+            max-width: 400px; /* Optional: set a maximum width */
+            padding: 4px;
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+        /* Style the Save Key button */
+        #save-api-key {
+            background-color: #007BFF; /* Blue shade */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px; /* Space between input and button */
+        }
+        #save-api-key:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        /* Style the label */
+        .input-label {
+            font-weight: bold; /* Bold the label */
+            margin-right: 10px; /* Space between label and input */
+        }
+    </style>
 </head>
 <body>
-    <label for="apiKey">API Key:</label>
-    <input type="password" id="api-key" placeholder="Enter your OpenRouter API key" id="api-key-input" style="flex-grow: 1; padding: 4px;"><br><br>
-    <button id="save-api-key">Save</button>
+    <div class="header">
+        <img src="../images/AutoTab-logo.png" alt="AutoTab Logo">
+    </div>
+    <h1>Settings</h1>
+    <div class="input-container">
+        <p class="input-label">OpenRouter API Key:</p>
+        <input type="password" id="api-key" placeholder="Enter your OpenRouter API key">
+        <button id="save-api-key">Save Key</button>
+    </div>
+    <p>If you do not have an OpenRouter API key, you can get one at <a href="https://openrouter.ai/api-keys">https://openrouter.ai/api-keys</a></p>
     <script src="options.js"></script>
 </body>
 </html>

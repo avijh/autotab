@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Web Page with All Input Types</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4a90e2;
+            text-align: center;
+        }
+        .editable {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        textarea, input[type="text"], input[type="password"], input[type="email"],
+        input[type="tel"], input[type="url"], input[type="search"], input[type="number"],
+        input[type="range"], input[type="date"], input[type="time"], input[type="datetime-local"],
+        input[type="month"], input[type="week"], input[type="color"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        input[type="checkbox"], input[type="radio"] {
+            margin-right: 5px;
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #357ab8;
+        }
+        #editor {
+            height: 300px;
+        }
+        #parentContainer {
+            margin-top: 20px;
+        }
+    </style>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+
+    <h1>AutoTab Test</h1>
+
+    <div id="parentContainer"></div>
+
+    <button id="addTextInput">Add Text Input</button>
+    <button id="addTextarea">Add Textarea</button>
+    <button id="addContentEditable">Add Content Editable Div</button>
+    <br/><br/>
+    <label for="name">Input (text):</label>
+    <input type="text" id="input-text-field" name="input-text-field" placeholder="This is an input text field."><br><br>
+    
+    <label for="name">Input (search):</label>
+    <input type="search" id="input-search-field" name="input-search-field" placeholder="This is an input search field."><br><br>
+
+    <label for="message">Textarea:</label>
+  
+    <textarea id="textarea-field" name="textarea-field" placeholder="This is a textarea."></textarea><br>
+
+    <p>Editable DIV:</p>
+    <div class="editable" contenteditable="true">This div does not contain any paragraph tags.</div><br>
+    
+    <div id="quill-editor"></div>
+
+    <p>Editable DIV with Single paragraph:</p>
+    <div class="editable" contenteditable="true" style="color: blue"><p>Paragraph 1</p></div><br><br>
+
+    <p>Editable DIV with MULTIPLE paragraphs:</p>
+    <div class="editable" contenteditable="true">
+        <p>Paragraph 1</p>
+        <p>Paragraph 2</p>
+        <p>Paragraph 3</p>
+    </div><br><br>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script>
+        const parentContainer = document.getElementById('parentContainer');
+        const addTextInputButton = document.getElementById('addTextInput');
+        const addTextareaButton = document.getElementById('addTextarea');
+        const addContentEditableButton = document.getElementById('addContentEditable');
+
+        // Initialize Quill Editor
+        var quill = new Quill('#quill-editor', {
+            theme: 'snow', // Options: 'snow' or 'bubble'
+            placeholder: 'Start typing in the Quill editor...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['link', 'image']
+                ]
+            }
+        });
+
+        addTextInputButton.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Dynamic <input>.';
+            parentContainer.appendChild(input);
+        });
+
+        addTextareaButton.addEventListener('click', () => {
+            const textarea = document.createElement('textarea');
+            textarea.placeholder = 'Dynamic <textarea>.';
+            parentContainer.appendChild(textarea);
+        });
+
+        addContentEditableButton.addEventListener('click', () => {
+            const div = document.createElement('div');
+            div.contentEditable = true;
+            div.classList.add('editable');
+            div.textContent = "Edit me! I'm dynamic.";
+            parentContainer.appendChild(div);
+        });
+    </script>
+
+</body>
+</html>	
